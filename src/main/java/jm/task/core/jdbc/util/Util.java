@@ -29,20 +29,6 @@ public class Util {
 
     private static SessionFactory sessionFactory;
 
-    static {
-        try {
-            Configuration configuration = new Configuration();
-
-            configuration.setProperties(getHibernateProperties());
-
-            configuration.addAnnotatedClass(User.class);
-            sessionFactory = configuration.buildSessionFactory();
-        } catch (Throwable ex) {
-            System.err.println("Initial SessionFactory creation failed." + ex);
-            throw new ExceptionInInitializerError(ex);
-        }
-    }
-
     private static Properties getHibernateProperties() {
         Properties props = new Properties();
         props.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
@@ -56,12 +42,18 @@ public class Util {
     }
 
     public static SessionFactory getSessionFactory() {
+        if (sessionFactory == null) {
+            try {
+                Configuration configuration = new Configuration();
+                configuration.setProperties(getHibernateProperties());
+
+                configuration.addAnnotatedClass(User.class);
+                sessionFactory = configuration.buildSessionFactory();
+            } catch (Throwable ex) {
+                System.err.println("Initial SessionFactory creation failed." + ex);
+                throw new ExceptionInInitializerError(ex);
+            }
+        }
         return sessionFactory;
     }
-
-    //public static void closeSessionFactory() {
-        //if (sessionFactory != null) {
-            //sessionFactory.close();
-       // }
-    //}
 }
